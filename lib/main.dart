@@ -31,21 +31,22 @@ class Task {
       : id = id.isEmpty ? ObjectId().toHexString() : id;
 }
 
-
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Task App',
-      home: TaskList(),
+      home: TaskList(baseUrl: 'http://localhost:3001'), // Set your base URL here
     );
   }
 }
 
 class TaskList extends StatefulWidget {
-  const TaskList({super.key});
+  final String baseUrl;
+
+  const TaskList({Key? key, required this.baseUrl}) : super(key: key);
 
   @override
   _TaskListState createState() => _TaskListState();
@@ -61,7 +62,7 @@ class _TaskListState extends State<TaskList> {
   }
 
   Future<void> fetchTasks() async {
-    final response = await http.get(Uri.parse('http://localhost:3001/tasks'));
+    final response = await http.get(Uri.parse('${widget.baseUrl}/tasks'));
     if (response.statusCode == 200) {
       final List<dynamic> tasksJson = json.decode(response.body);
       setState(() {
@@ -74,7 +75,7 @@ class _TaskListState extends State<TaskList> {
 
   Future<void> deleteTask(String taskId) async {
     final response =
-        await http.delete(Uri.parse('http://localhost:3001/tasks/$taskId'));
+        await http.delete(Uri.parse('${widget.baseUrl}/tasks/$taskId'));
     if (response.statusCode == 200) {
       fetchTasks();
     } else {
@@ -82,12 +83,10 @@ class _TaskListState extends State<TaskList> {
     }
   }
 
-  // Function to navigate to the screen for adding a new task
   void navigateToAddTaskScreen() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => AddTaskScreen(),
+      builder: (context) => AddTaskScreen(baseUrl: widget.baseUrl),
     )).then((_) {
-      // Refresh the task list when returning from the add task screen
       fetchTasks();
     });
   }
@@ -124,8 +123,9 @@ class _TaskListState extends State<TaskList> {
 class AddTaskScreen extends StatelessWidget {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final String baseUrl;
 
-  AddTaskScreen({super.key});
+  AddTaskScreen({Key? key, required this.baseUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -150,15 +150,13 @@ class AddTaskScreen extends StatelessWidget {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                // Create a new task without the id
                 final newTask = Task.create(
                   title: titleController.text,
                   description: descriptionController.text,
                 );
 
-                // Send the new task to the server using http.post
                 final response = await http.post(
-                  Uri.parse('http://localhost:3001/tasks'),
+                  Uri.parse('${baseUrl}/tasks'),
                   headers: {'Content-Type': 'application/json'},
                   body: jsonEncode({
                     'title': newTask.title,
@@ -167,7 +165,6 @@ class AddTaskScreen extends StatelessWidget {
                 );
 
                 if (response.statusCode == 200) {
-                  // Close the add task screen
                   Navigator.of(context).pop();
                 } else {
                   // Handle the error accordingly (e.g., display a message to the user)
