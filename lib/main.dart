@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Task App',
-      home: TaskList(baseUrl: 'http://localhost:3001'), // Set your base URL here
+      home: TaskList(baseUrl: 'http://ec2-3-145-28-92.us-east-2.compute.amazonaws.com:3001'), // Set your base URL here
     );
   }
 }
