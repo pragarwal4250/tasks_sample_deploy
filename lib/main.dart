@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:bson/bson.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class Task {
@@ -33,9 +33,11 @@ class Task {
 
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Task App',
       home: TaskList(),
     );
@@ -43,6 +45,8 @@ class MyApp extends StatelessWidget {
 }
 
 class TaskList extends StatefulWidget {
+  const TaskList({super.key});
+
   @override
   _TaskListState createState() => _TaskListState();
 }
@@ -59,7 +63,6 @@ class _TaskListState extends State<TaskList> {
   Future<void> fetchTasks() async {
     final response = await http.get(Uri.parse('http://localhost:3001/tasks'));
     if (response.statusCode == 200) {
-      print('Connected');
       final List<dynamic> tasksJson = json.decode(response.body);
       setState(() {
         tasks = tasksJson.map((task) => Task.fromJson(task)).toList();
@@ -93,7 +96,7 @@ class _TaskListState extends State<TaskList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Task App'),
+        title: const Text('Task App'),
       ),
       body: ListView.builder(
         itemCount: tasks.length,
@@ -103,7 +106,7 @@ class _TaskListState extends State<TaskList> {
             title: Text(task.title),
             subtitle: Text(task.description),
             trailing: IconButton(
-              icon: Icon(Icons.delete),
+              icon: const Icon(Icons.delete),
               onPressed: () => deleteTask(task.id),
             ),
           );
@@ -112,7 +115,7 @@ class _TaskListState extends State<TaskList> {
       floatingActionButton: FloatingActionButton(
         onPressed: navigateToAddTaskScreen,
         tooltip: 'Add Task',
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -122,11 +125,13 @@ class AddTaskScreen extends StatelessWidget {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+  AddTaskScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Task'),
+        title: const Text('Add Task'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -135,14 +140,14 @@ class AddTaskScreen extends StatelessWidget {
           children: [
             TextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextField(
               controller: descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
                 // Create a new task without the id
@@ -162,15 +167,13 @@ class AddTaskScreen extends StatelessWidget {
                 );
 
                 if (response.statusCode == 200) {
-                  print('New Task added successfully');
                   // Close the add task screen
                   Navigator.of(context).pop();
                 } else {
-                  print('Failed to add new task. Server returned ${response.statusCode}');
                   // Handle the error accordingly (e.g., display a message to the user)
                 }
               },
-              child: Text('Add Task'),
+              child: const Text('Add Task'),
             ),
           ],
         ),
